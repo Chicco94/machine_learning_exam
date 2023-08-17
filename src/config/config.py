@@ -13,4 +13,4 @@ EPS_DECAY = 1000
 TAU = 0.005
 LR = 1e-4
 
-ENV_NAME = "BreakoutDeterministic"
+ENV_NAME = "BreakoutDeterministic-v4"

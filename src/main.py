@@ -4,7 +4,7 @@ from models.test_model import test_model
 
 def main():
 	#train_model(100_000,model_name='breakout_model_96900')
-	test_model(start=97000,count=1,render=True,num_eps=1)
+	test_model(start=900,count=1,render=True,num_eps=1)
 	#with open('../reports/log.log','r') as data:
 	#	models,scores,steps_lengths = [],[],[]
 	#	for line in data.readlines():
