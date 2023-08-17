@@ -1,0 +1,11 @@
+.venv
+*.pyc
+
+models/*
+!models/**/
+models/BreakoutDeterministic/*
+models/Cartpole-V1_models/*
+!models/BreakoutDeterministic/**/
+!models/BreakoutDeterministic/best/*
+!models/Cartpole-V1_models/**/
+!models/Cartpole-V1_models/best/*
