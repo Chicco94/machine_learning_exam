@@ -2,8 +2,8 @@ import gymnasium as gym
 import numpy as np
 from features.transforms import Transforms
 
-def get_env_features(env_name):
-	env = gym.make(env_name,render_mode='human',max_episode_steps=2500)
+def get_env_features(env_name,max_episode_steps=2500):
+	env = gym.make(env_name,render_mode='human',max_episode_steps=max_episode_steps)
 
 	# Get number of actions from gym action space
 	n_actions = env.action_space.n
