@@ -71,3 +71,16 @@ Describe the neural network architecture used in the Q-network and the target ne
 ![The Network](reports/figures/rnn_torchviz.png "The Network")
 
 Provide details on how experience replay is employed to stabilize training.
+
+
+## Training and Results
+Discuss the training process, including the choice of hyperparameters, training episodes, and exploration strategies.
+Share the performance metrics used to evaluate the agent's progress during training.
+
+![Results](reports/figures/scores_20230831080619.png "Results")
+
+Present the results of the DQN project, including any improvements observed over time.
+
+![Small Training](reports/gif/breakout_model_50_000.gif "Small Training")
+![More Training](reports/gif/breakout_model_75_000.gif "More Training")
+![Even More Training](reports/gif/breakout_model_100_000.gif "Even More Training")
