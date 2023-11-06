@@ -42,7 +42,7 @@ $$ Q(s, a) = Q(s, a) + \alpha * [r + \gamma * max(Q(s', a')) - Q(s, a)] $$
 - $Q(s, a)$ is the Q-value for taking action $a$ in state $s$.
 - $\alpha$ is the learning rate, determining the step size for the updates.
 - $r$ is the immediate reward obtained after taking action $a$ in state $s$.
-- $\gamma$ is the discount factor, which weighs future rewards.
+- $\gamma$ is the discount factor, which weights future rewards.
 - $max(Q(s', a'))$ represents the maximum Q-value for the next state $s$ considering all possible actions $a$.
 
 ### Training
@@ -71,8 +71,20 @@ Provide details on how experience replay is employed to stabilize training.
 
 
 ## Training and Results
-Discuss the training process, including the choice of hyperparameters, training episodes, and exploration strategies.
-Share the performance metrics used to evaluate the agent's progress during training.
+The choosen hyperparameters are:
+``` 
+BATCH_SIZE = 128 # the number of random transitions sampled from the replay buffer
+GAMMA = 0.99 # the discount factor as mentioned in the previous section
+EPS_START = 0.9 # the starting value of epsilon
+EPS_END = 0.05 # the final value of epsilon
+EPS_DECAY = 0.99 # the rate of exponential decay of epsilon, closer to one means a slower decay
+TAU = 0.005 # the update rate of the target network
+LR = 1e-4 # the learning rate of the ``Adam`` optimizer
+REPLACE_TARGET_EVERY_K_STEPS = 5_000 # Updates the target net to have same weights as policy net
+STEPS = 100_000 # number of games to play
+``` 
+The only metric used to evaluate the results was the ending score of the game. Higher the score, better was the agent.
+To prevent a model to keep playing without firing a new ball, the game had a timeout.  
 
 ![Results](reports/figures/scores_20230831080619.png "Results")
 
