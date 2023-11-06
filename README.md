@@ -57,11 +57,8 @@ $$ Q(s, a) = Q(s, a) + \alpha * [r + \gamma * max(Q(s', a')) - Q(s, a)] $$
 
 ## Project Implementation
 
-### Gym Implementation
-Explain the steps taken to implement the DQN algorithm for the Breakout game in Gymnasium.
-
 ### Preprocessing
-Discuss the preprocessing of game frames, including image resizing and color channel conversion.
+To make the training process less memory-intensive I had to crop the original frame by excluding useless pixels that provided no useful information (such as the score and remaining lives at the top of the screen). Then, the image is resized to an 84x84 square and grayscaled (the colors of each brick have no meaning). The last preprocessing step was adding shadows representing the direction of the ball and the paddle. This was made by taking two subsequent frames and subtracting the older frame (set darker) from the newer one. You can see an example in the image below.
 
 ![Preprocessing](reports/figures/preprocess.png "Preprocessing")
 
