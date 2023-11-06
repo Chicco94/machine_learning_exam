@@ -49,10 +49,10 @@ class DQN(nn.Module):
 		return actions
 
 	def save(self,additional_info=''):
-		torch.save(self.state_dict(), f'../models/{self.env_name}/{self.model_name}{additional_info}.pth')
+		torch.save(self.state_dict(), f'models/{self.model_name}{additional_info}.pth')
 		t = open('models/tap.tap','w')
 		t.close()
 
 	def load(self):
-		self.load_state_dict(torch.load(f'../models/{self.env_name}/{self.model_name}.pth'))
+		self.load_state_dict(torch.load(f'models/{self.model_name}.pth'))
 		self.eval()

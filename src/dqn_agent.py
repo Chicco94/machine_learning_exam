@@ -29,7 +29,7 @@ class DQAgent(object):
 		self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 		# Initialise Replay Memory
-		self.memory = ReplayMemory(size=512)
+		self.memory = ReplayMemory(size=100_000)
 
 		# After how many training iterations the target network should update
 		self.replace_target_cnt = replace_target_cnt
@@ -47,17 +47,16 @@ class DQAgent(object):
 		except Exception as e:
 			print(e)
 			pass
-		
+
 		# Set target net to be the same as policy net
 		self.replace_target_net()
 
 		# Set optimizer & loss function
-		self.optim = torch.optim.Adam(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
+		self.optim = torch.optim.Adam(self.policy_net.parameters(), lr=self.LR)
 		self.loss = torch.nn.SmoothL1Loss()
 
-
 	def sample_batch(self):
-		batch = self.memory.sample(self.batch_size)
+		batch = self.memory.sample_batch(self.batch_size)
 		state_shape = batch.state[0].shape
 
 		# Convert to tensors with correct dimensions
@@ -83,7 +82,7 @@ class DQAgent(object):
 		else:
 			action = random.choice([x for x in range(self.action_space)])
 		return action
-	
+
 	# Stores a transition into memory
 	def store_transition(self, *args):
 		self.memory.add_transition(*args)
@@ -96,13 +95,13 @@ class DQAgent(object):
 
 	# Decrement epsilon 
 	def dec_eps(self):
-		self.eps = self.eps - self.eps_dec if self.eps > self.eps_end \
+		self.eps = self.eps * self.eps_dec if self.eps > self.eps_end \
 						else self.eps_end
 
 	# Samples a single batch according to batchsize and updates the policy net
 	def learn(self, num_iters=1,episode=''):
-		if len(self.memory) < self.batch_size:
-			return 
+		if self.memory.pointer < self.batch_size:
+			return
 
 		for i in range(num_iters):
 
@@ -138,7 +137,6 @@ class DQAgent(object):
 			self.policy_net.save(f'_{episode}')
 		self.dec_eps()
 
-
 	# Plays num_eps amount of games, while optimizing the model after each episode
 	def train(self, num_eps=100, render=False):
 		scores = []
@@ -152,7 +150,7 @@ class DQAgent(object):
 			obs, _ = self.env.reset()
 			new_game = True
 			state = Transforms.to_gray(obs)
-			
+
 			score = 0
 			cnt = 0
 			while not done:
@@ -184,10 +182,10 @@ class DQAgent(object):
 			scores.append(score)
 			print(f'Episode {i}/{num_eps}: \n\tScore: {score}\n\tAvg score (past 100): {np.mean(scores[-100:])}\
 				\n\tEpsilon: {self.eps}\n\tTransitions added: {cnt}')
-			
+
 			# Train on as many transitions as there have been added in the episode
 			print(f'Learning x{math.ceil(cnt/self.batch_size)}')
-			self.learn(math.ceil(cnt/self.batch_size))
+			self.learn(math.ceil(cnt/self.batch_size),i)
 			print('\n----------------------------------------\n')
 
 		self.env.close()
@@ -201,7 +199,6 @@ class DQAgent(object):
 		self.policy_net.eval()
 
 		scores = []
-		steps = []
 
 		for i in range(num_eps):
 			done = False
@@ -210,7 +207,7 @@ class DQAgent(object):
 			obs, _ = self.env.reset()
 			new_game = True
 			state = Transforms.to_gray(obs)
-			
+
 			score = 0
 			cnt = 0
 			while not done:
@@ -235,11 +232,11 @@ class DQAgent(object):
 				obs = obs_
 				state = state_
 				cnt += 1
-			
-			scores.append(score)
-			steps.append(cnt)
-			print(f'Episode {i}/{num_eps}: \n\tScore: {score}\n\tAvg score (past 100): {np.mean(scores[-100:])}\
-				\n\tEpsilon: {self.eps}\n\tSteps made: {cnt}')
 
+			scores.append(score)
+			print(f'Episode {i}/{num_eps}: \tScore: {score}\tScore (past 100): {score}\tEpsilon: {self.eps}\tSteps made: {cnt}')
 		self.env.close()
-		return (scores,steps)
+		return scores
+
+
+
