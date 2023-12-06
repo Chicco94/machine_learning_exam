@@ -5,8 +5,11 @@
 models/*
 !models/**/
 models/BreakoutDeterministic/*
-models/Cartpole-V1_models/*
+models/BreakoutDeterministic_firstRun/*
 !models/BreakoutDeterministic/**/
+!models/BreakoutDeterministic_firstRun/**/
 !models/BreakoutDeterministic/best/*
+!models/BreakoutDeterministic/best_firstRun/*
+models/Cartpole-V1_models/*
 !models/Cartpole-V1_models/**/
 !models/Cartpole-V1_models/best/*
