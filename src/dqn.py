@@ -54,5 +54,5 @@ class DQN(nn.Module):
 		t.close()
 
 	def load(self):
-		self.load_state_dict(torch.load(f'models/{self.model_name}.pth'))
+		self.load_state_dict(torch.load(f'../models/BreakoutDeterministic/{self.model_name}.pth'))
 		self.eval()
