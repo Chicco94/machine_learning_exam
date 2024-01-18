@@ -31,7 +31,7 @@ While the concept of the Breakout game is straightforward, it presents several c
 
 ### Components of the DQN Algorithm
 - **Q-Network**: The core of the DQN is a neural network, often a deep convolutional neural network (CNN). This network is responsible for approximating the Q-function, denoted as Q(s, a), which estimates the expected cumulative reward of taking action 'a' in state 's'. The Q-network takes the current state as input and outputs Q-values for all possible actions.
-- **Experience Replay**: DQN uses an experience replay buffer, which is a storage of past experiences (state, action, reward, next state). This buffer helps in breaking the temporal correlation of sequential experiences, making training more stable. During training, random batches of experiences are sampled from the replay buffer for updates.
+- **Experience Replay**: DQN uses an experience replay buffer, which is a storage of past experiences (state, action, reward, next state). This buffer helps in breaking the temporal correlation of sequential experiences, making training more stable. During training, random batches of experiences are sampled from the replay buffer for updates. More details are presented below.
 - **Target Network**: To stabilize training, DQN employs two networks: the primary Q-network and a target network. The target network is a copy of the Q-network but with frozen parameters. The Q-network is periodically synchronized with the target network. This technique helps prevent the target Q-values from "moving" during training, improving stability.
 
 ### Q-Learning Update Equation
@@ -63,11 +63,36 @@ To make the training process less memory-intensive I had to crop the original fr
 ![Preprocessing](reports/figures/preprocess.png "Preprocessing")
 
 ### The Network
-Describe the neural network architecture used in the Q-network and the target network.
+Let's break down the structure of the neural network.
+Convolutional Layers
+ - The first convolutional layer takes input with 1 channel (the image is grayscaled after the preprocessing) and applies 32 filters of size 8x8 with a stride of 4 and padding of 2.
+ - The second convolutional layer uses 64 filters of size 4x4 with a stride of 2 and padding of 1.
+ - The third convolutional layer uses 64 filters of size 3x3 with a stride of 1 and padding of 1.
+ - ReLU activation functions follow each convolutional layer.
+
+Fully Connected Layers
+ - The output from the convolutional layers is flattened to a one-dimensional tensor.
+ - The first fully connected layer takes the flattened input and produces an output with 512 units, followed by a ReLU activation.
+ - The second fully connected layer produces the final output with 4 units, representing the Q-values for each possible action.
 
 ![The Network](reports/figures/rnn_torchviz.png "The Network")
 
-Provide details on how experience replay is employed to stabilize training.
+
+### Experience Replay
+The core idea behind experience replay is to store and randomly sample experiences from the agent's past interactions with the environment, creating a replay buffer. These experiences (state, action, reward, next state) are then used for training the neural network, breaking the temporal correlation between consecutive experiences. Here's how experience replay is employed to stabilize training:
+
+ - Replay Buffer Initialization: A replay buffer is initialized with a fixed capacity. This buffer stores past experiences, and its capacity determines how many experiences are retained at any given time.
+ - Experience Collection: During each interaction with the environment, the agent collects experiences (state, action, reward, next state) and adds them to the replay buffer.
+ - Random Sampling: Instead of using the most recent experiences immediately for training, the agent samples a random batch of experiences from the replay buffer. This random sampling helps in breaking the temporal correlation between consecutive experiences.
+ - Training with Experience Replay: The sampled batch of experiences is used to update the parameters of the Q-network. The Q-network is trained to minimize the temporal difference (TD) error, which measures the difference between the predicted Q-values and the target Q-values.
+ - Batch Learning: By training on batches of experiences rather than individual experiences, the learning process becomes more stable. This is because the network is updated with a variety of experiences, which helps prevent it from focusing too much on the most recent data.
+
+Benefits of Experience Replay:
+ - Sample Efficiency: Reusing past experiences allows the agent to learn more from each experience, making training more sample-efficient.
+ - Stability: Training on random batches of experiences reduces the risk of the model overfitting to the most recent experiences or getting stuck in local minima.
+ - Breaking Correlation: The random sampling breaks the temporal correlation between consecutive experiences, which can help stabilize learning and prevent oscillations.
+ - Diverse Training Data: The replay buffer contains a diverse set of experiences, ensuring that the training data covers a wide range of situations the agent may encounter.
+
 
 
 ## Training and Results
@@ -81,15 +106,23 @@ EPS_DECAY = 0.99 # the rate of exponential decay of epsilon, closer to one means
 TAU = 0.005 # the update rate of the target network
 LR = 1e-4 # the learning rate of the ``Adam`` optimizer
 REPLACE_TARGET_EVERY_K_STEPS = 5_000 # Updates the target net to have same weights as policy net
-STEPS = 100_000 # number of games to play
+STEPS = 200_000 # number of games to play
 ``` 
 The only metric used to evaluate the results was the ending score of the game. Higher the score, better was the agent.
-To prevent a model to keep playing without firing a new ball, the game had a timeout.  
+To prevent a model to keep playing indefinitely without firing a new ball, the game had a timeout.  
 
-![Results](reports/figures/scores_20230831080619.png "Results")
+![Results](reports/figures/scores_20240107235716.png "Results")
 
-Present the results of the DQN project, including any improvements observed over time.
+Here we have 3 versions of the model after 50.000, 100.000 and 169.700 epochs of training.
+As you can see, the last one is definitely better than the other two.
+The most surprising improvment was the ability of the model to make a tunnel between the brick to
+push the ball above the layer of bricks and keep removing brick without risk to lose the ball.
 
 ![Small Training](reports/gif/breakout_model_50_000.gif "Small Training")
-![More Training](reports/gif/breakout_model_75_000.gif "More Training")
-![Even More Training](reports/gif/breakout_model_100_000.gif "Even More Training")
+![More Training](reports/gif/breakout_model_100_000.gif "More Training")
+![Even More Training](reports/gif/breakout_model_169_700.gif "Even More Training")
+
+
+
+## Possible Improvements
+The main improvment is to use the duration of a game as part of the model evaluation, because lot of models got stuck in the same pattern of moves that prevented loosing the ball but was not improving their score.
